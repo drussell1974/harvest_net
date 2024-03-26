@@ -28,7 +28,10 @@ https://www.sqlite.org/datatype3.html
 
 > cd sqlite
 
-> sqlite3 test.db
+# open the SQLITE database
+
+> sqlite3 ./test.db
+
 
 
 
