@@ -30,7 +30,7 @@ def create_table(conn, create_table_sql):
 
 
 def main():
-    database = r"./test.db"
+    database = r"../sqlite/test.db"
 
     sql_create_run_table = """CREATE TABLE IF NOT EXISTS run (
                                     id integer PRIMARY KEY,
@@ -44,12 +44,11 @@ def main():
                                     name text NOT NULL,
                                     url_path text NOT NULL,
                                     priority integer,
-                                    status_id integer NOT NULL,
-                                    FOREIGN KEY (project_id) REFERENCES projects (id)
+                                    status_id integer NOT NULL
                                 );"""
 
 
-    sql_create_web_scrapings_table = """ CREATE TABLE IF NOT EXISTS web_scrapings (
+    sql_create_web_scraping_table = """ CREATE TABLE IF NOT EXISTS web_scraping (
                                         id integer PRIMARY KEY,
                                         run_id text NOT NULL references run (id),
                                         customer_id integer NOT NULL REFERENCES customer (id), 
@@ -63,13 +62,17 @@ def main():
 
     # create tables
     if conn is not None:
-        # create projects table
+        print("Creating customer table...")
         create_table(conn, sql_create_customer_table)
 
-        # create tasks table
+        print("Creating run table...")
         create_table(conn, sql_create_run_table)
 
-        # create tasks table
-        create_table(conn, sql_create_web_scrapings_table)
+        print("Creating web_scraping table...")
+        create_table(conn, sql_create_web_scraping_table)
     else:
         print("Error! cannot create the database connection.")
+
+
+if __name__ == '__main__':
+    main()
