@@ -1,0 +1,7 @@
+sqlite/
+.venv/
+__pycache__/
+*.pyc
+*.exe
+geckodriver
+*.log
