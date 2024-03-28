@@ -4,3 +4,5 @@ __pycache__/
 *.exe
 geckodriver
 *.log
+*.db
+*.sqlite3
