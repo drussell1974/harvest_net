@@ -11,8 +11,8 @@ class Database:
     def insert_run(self, *vals):
         """ INSERT run (customer_id, begin__date, status_id) ..."""
         
-        insert_run_sql = f"INSERT INTO run (customer_id, begin_date, status_id) VALUES {vals};"
-        print("Executing...", insert_run_sql)
+        insert_run_sql = f"INSERT INTO run (customer_id, search_terms, category, begin_date, status_id) VALUES {vals};"
+        print("run...", insert_run_sql)
         self.exec(self.conn, insert_run_sql)
         return self.get_last_insert_rowid(self.conn)
     
@@ -21,7 +21,7 @@ class Database:
         """INSERT web_scraping (run_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount) ..."""
 
         insert_data_sql = f"INSERT INTO web_scraping (run_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount) VALUES {vals};"
-        print("Executing...", insert_data_sql)
+        print("web_scraping...", vals)
         self.exec(self.conn, insert_data_sql)
         return self.get_last_insert_rowid(self.conn)
         
@@ -65,6 +65,8 @@ def main():
     sql_create_run_table = """CREATE TABLE IF NOT EXISTS run (
                                     id integer PRIMARY KEY,
                                     customer_id integer NOT NULL REFERENCES customer (id), 
+                                    search_terms text NOT NULL,
+                                    category text NOT NULL,
                                     begin_date text NOT NULL,
                                     status_id integer NOT NULL
                                 );"""

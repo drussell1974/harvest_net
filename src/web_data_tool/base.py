@@ -3,7 +3,7 @@ from datetime import datetime
 from unittest import TestCase
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -33,14 +33,14 @@ def WebBrowserContext():
 
 class Base(TestCase):
 
-    test_page = None
+    url = None
 
-    def __init__(self, test_page):                                                                
+    def __init__(self, url):                                                                
         super().__init__()
 
         self.db = Database()
         
-        self.test_page = test_page if test_page is not None and test_page != "" else self.TEST_URL                                                                    
+        self.url = url if url is not None and url != "" else self.TEST_URL                                                                    
 
         self.test_context = WebBrowserContext()
         self.test_context.implicitly_wait(3)
@@ -75,21 +75,27 @@ class Base(TestCase):
 
     def find_element_with_implicit_wait(self, by, element_id, wait=2, parent=None):
         self.test_context.implicitly_wait(wait)
-        
+        elem = None
         try:
             if parent == None:
                 elem = self.test_context.find_element(by=by, value=element_id)
             else:
                 elem = parent.find_element(by=by, value=element_id)
         except NoSuchElementException:
-            elem = None
+            print(f"Element '{element_id}' not found")
         return elem
 
 
     def find_element_with_explicit_wait(self, by, element_id, wait=2):
-        elem = WebDriverWait(self.test_context, wait).until(
-            EC.presence_of_element_located((by, element_id))
-        )
+        elem = None
+        try:
+            elem = WebDriverWait(self.test_context, wait).until(
+                EC.presence_of_element_located((by, element_id))
+            )
+        except TimeoutException:
+            print(f"Timeout out waiting for element '{element_id}' to load")
+        except NoSuchElementException:
+            print(f"Element '{element_id}' not found")
         return elem
 
 
