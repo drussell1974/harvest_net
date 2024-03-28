@@ -10,6 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
 
+from database import Database
 
 def WebBrowserContext():
 
@@ -32,12 +33,21 @@ def WebBrowserContext():
 
 class Base(TestCase):
 
-    def __init__(self, test):                                                                
-        self.id = 0,
-        self.begin_date = datetime.now(),
-        self.status_id = 0  # 0 = not started, 1 = running, 2 = completed, 3 = failed
+    test_page = None
 
-        super().__init__() 
+    def __init__(self, test_page):                                                                
+        super().__init__()
+
+        self.db = Database()
+        
+        self.test_page = test_page if test_page is not None and test_page != "" else self.TEST_URL                                                                    
+
+        self.test_context = WebBrowserContext()
+        self.test_context.implicitly_wait(3)
+        self.test_context.maximize_window()
+        self.test_context.set_page_load_timeout(30)
+        self.test_context.set_script_timeout(30)
+        self.test_context.delete_all_cookies()
         
 
     def wait(self, s = 3):
@@ -63,9 +73,16 @@ class Base(TestCase):
         return elem
 
 
-    def find_element_with_implicit_wait(self, by, element_id, wait=2):
+    def find_element_with_implicit_wait(self, by, element_id, wait=2, parent=None):
         self.test_context.implicitly_wait(wait)
-        elem = self.test_context.find_element(by=by, value=element_id)
+        
+        try:
+            if parent == None:
+                elem = self.test_context.find_element(by=by, value=element_id)
+            else:
+                elem = parent.find_element(by=by, value=element_id)
+        except NoSuchElementException:
+            elem = None
         return elem
 
 
@@ -82,6 +99,7 @@ class Base(TestCase):
 
 
     def close(self):
-        """ Close the task """
         self.test_context.quit()
         self.test_context = None
+
+        self.db.conn.commit()

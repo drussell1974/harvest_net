@@ -1,24 +1,24 @@
-from setup import main as db_main
-from task import Task
+import traceback
+from selenium.common.exceptions import NoSuchElementException
+
+from database import main as db_main
+from task import Demo1
 
 def setup():
     db_main()
 
-def main():
-    print('Hello world!')
-    print('Welcome to web_data_tool package')
-
 
 if __name__ == '__main__':
-    main()
 
-    print('Running task...')
-    task = Task("http://www.google.com")
+    print('Initialising task...')
+
+    task = Demo1(1, "https://www.argos.co.uk/")
     
+    print('Running task...')
     task.run()
-
-    print('Task completed')
-    print('closing task...')
+    
+    print('Task closing...') 
     task.close()
-    print('Task closed!!!!!!!')
+
+    print('Task closed!!!!!!!') 
 
