@@ -10,6 +10,30 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug Demo1a",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/web_data_tool/main.py",
+            "args": ["demo1a"],
+            "console": "integratedTerminal"
+        },,
+        {
+            "name": "Debug Demo1b",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/web_data_tool/main.py",
+            "args": ["demo1b"],
+            "console": "integratedTerminal"
+        }
+        {
+            "name": "Debug Demo1c",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/web_data_tool/main.py",
+            "args": ["demo1c"],
+            "console": "integratedTerminal"
         }
     ]
 }

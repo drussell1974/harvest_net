@@ -4,35 +4,35 @@ import datetime
 class CsvFile:
 
     def __init__(self):
-        self.conn = self.create_connection()
+        self._run_id = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+        self.conn = self.create_connection(self._run_id)
+        self.insert_run("run_id", "product_code", "product_name", "lead_date", "lead_days", "in_stock", "price", "discount")
         
 
     def insert_run(self, *vals):
         """ DO NOTHING """
-        return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        self.exec(self.conn, vals)
+        return self.conn
     
 
     def insert_data(self, *vals):
         """ run_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount """
-
-        insert_data_txt = []
-        insert_data_txt = insert_data_txt.append(vals)
         print("web_scraping...", vals)
-        self.exec(self.conn, insert_data_txt)
+        self.exec(self.conn, vals)
         
 
-    @classmethod
-    def create_connection(cls):
+    def create_connection(self, run_id):
         """ Create a connection to a csv file"""
-        path = f"./test_{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}.csv"
-        with open(path, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        return writer
+        path = f"./csv_files/test_{run_id}.csv"
+        return open(path, 'w', newline='')
         
-
+    
     @classmethod
-    def exec(cls, writer, data):
+    def exec(cls, *vals):
         """ Write data to csv file """
-        if writer is None:
-            writer = cls.create_connection()
-        writer.writerow(data)
+        w = csv.writer(vals[0], delimiter='|', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        w.writerow(list(vals[1])[1:])
+    
+
+    def close(self):
+        self.conn.close()

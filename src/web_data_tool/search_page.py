@@ -12,13 +12,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from base import Base, WebBrowserContext
 
 
-class ArgosSearchPage(Base):
+class SearchPage(Base):
     """ Task class for the demo run """
 
     TEST_URL = "http://www.google.com"
     
-    def __init__(self, customer_id, search_terms, category, postcode=None, datasource=None, url=None):  
-        super().__init__(datasource, url)
+    def __init__(self, customer_id, search_terms, category, postcode=None, url=None, datasource=None):  
+        super().__init__(url, datasource)
         
         # run
         self.customer_id = customer_id
@@ -53,12 +53,13 @@ class ArgosSearchPage(Base):
 
         # get products
 
-        elems = self.find_element_with_implicit_wait(by=By.CSS_SELECTOR, element_id=".jsHfZV", wait=10)
+        elems = self.find_elements_with_implicit_wait(by=By.CSS_SELECTOR, element_id=".jsHfZV", wait=10)
 
         next_page = True
-
+        n = 0
         while next_page is True:
             for elem in elems:
+                n = n + 1
                 try:
                     """ Find on index """
 
@@ -87,7 +88,7 @@ class ArgosSearchPage(Base):
                     di_elem = self.find_element_with_implicit_wait(by=By.CSS_SELECTOR, element_id='.uhWEw', parent=elem)
                     di_text = di_elem.text if di_elem is not None else 'NF'
 
-                    self.db.insert_data(self.run_id, pc_text, pn_text, datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), 0, av_text, pr_text, di_text)
+                    self.db.insert_data(self.run_id, 0, pc_text, pn_text, datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), 0, av_text, pr_text, di_text)
 
                 except Exception as e:
                     print(e)
@@ -105,13 +106,14 @@ class ArgosSearchPage(Base):
             except StaleElementReferenceException  as e:
                 elem = self.find_element_with_implicit_wait(By.CSS_SELECTOR, 'a.Paginationstyles__PageLink-sc-1temk9l-1')
                 elem.click()  
-            except Exception as e:    
+            except Exception as e:
+                elem = None    
                 next_page = False
             
-            if elem is not None:        
+            if elem is None or n > 300:
+                next_page = False
+            else: 
                 next_page = True
-
-
         pass
 
 

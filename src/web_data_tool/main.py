@@ -4,27 +4,57 @@ from selenium.common.exceptions import NoSuchElementException
 
 from database import Database
 from csv_file import CsvFile
-from argos_product_page import ArgosProductPage, GetProductCodes
-from argos_search_page import ArgosSearchPage
-
-def setup():
-    db_main()
+from web_data_tool.product_page import ProductPage, GetProductCodes
+from web_data_tool.search_page import SearchPage
 
 
 if __name__ == '__main__':
-    demo_name = sys.argv[1]
-    print(f'Initialising task - {demo_name}...')
 
-    if demo_name == "demo1":
-        """ Demo 1 """
-        """ Ad-hoc search on Argos website """
-        task1 = GetProductCodes(1, search_terms="Matress", datasource=Database(), url="https://www.argos.co.uk/")
-        print('Running task1 to get product code...')
+    demo_name = sys.argv[1] if len(sys.argv) > 1 else "demo1c"
+
+    print(f'Initialising task - {demo_name}...')
+    
+    if demo_name == "demo1a":
+        """ Demo 1a """
+        src = CsvFile()
+        print(""" ProductPage website get single product - write to """, src)        
+        
+        task1 = ProductPage(1, product_codes=["1403149"], base_url="https://www.argos.co.uk/product", datasource=src)
+        print('Running task...')
         task1.run()
-        print('Task1 closing...') 
+        
+        print('Task closing...') 
         task1.close()
 
-        task2 = ArgosProductPage(1, product_codes=task1.product_codes, datasource=Database(), base_url="https://www.argos.co.uk/product")
+
+    if demo_name == "demo1b":
+        """ Demo 1b """
+        src = Database()
+        print(" ProductPage - get single product - write to ", src)
+
+        task1 = ProductPage(1, product_codes=["1403149"], base_url="https://www.argos.co.uk/product", datasource=src)
+        
+        print('Running task...')
+        task1.run()
+        
+        print('Task closing...') 
+        task1.close()
+
+
+    if demo_name == "demo1c":
+        """ Demo 1c """
+        src = Database()
+        print(" ProductPage - get all product codes for Mattress - write to ", src)
+
+        task1 = GetProductCodes(1, search_terms="Matress", url="https://www.argos.co.uk/", datasource=src)
+        
+        print('Running task1 to get product code...')
+        task1.run()
+
+        # share src with task2
+        task1.close(page_only=True)
+
+        task2 = ProductPage(1, product_codes=task1.product_codes, base_url="https://www.argos.co.uk/product", datasource=src)
         print('Running task...')
         task2.run()
         
@@ -34,12 +64,13 @@ if __name__ == '__main__':
 
     elif demo_name == "demo2":
         """ Demo 2 """
-        """ Search for matresses of different sizes on Argos website """
+        src = Database()
+        print(" ProductPage - Search for matresses of different sizes on Argos website - write to ", src)
 
         matress_sizes = ["single"] #, "small-double", "double", "king-size"]
         
         for size in matress_sizes:
-            task = ArgosSearchPage(1, search_terms="Matress", category=size, datasource=Database(), url=f"https://www.argos.co.uk/browse/home-and-furniture/bedroom-furniture/mattresses/c:29870/size:{size}")
+            task = SearchPage(1, search_terms="Matress", category=size, url=f"https://www.argos.co.uk/browse/home-and-furniture/bedroom-furniture/mattresses/c:29870/size:{size}", datasource=src)
             
             print('Running task...')
             task.run()
@@ -52,11 +83,12 @@ if __name__ == '__main__':
 
     elif demo_name == "demo3":
         """ Demo 3 """
-        """ Get matress' availablity """
-        
+        src = Database()
+        print(" ProductPage - Get matresses availablity - write to ", src)
+
         # Single mattresses page 3
 
-        task = ArgosSearchPage(1, search_terms="Matress", postcode="HD4 6XX", datasource=Database(), url=f"https://www.argos.co.uk/browse/home-and-furniture/bedroom-furniture/mattresses/c:29870/size:single/opt/page:3/")
+        task = SearchPage(1, search_terms="Matress", category="single", postcode="HD4 6XX", url=f"https://www.argos.co.uk/browse/home-and-furniture/bedroom-furniture/mattresses/c:29870/size:single/opt/page:3/", datasource=src)
         
         print('Running task...')
         task.run()
@@ -65,5 +97,8 @@ if __name__ == '__main__':
         task.close()
         
         print('Task closed!!!')
-        
+    
+    else:
+        print("A demo of that name does not exist!!!!!")
+
     print('Completed!!!!!!!')

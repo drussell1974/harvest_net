@@ -5,11 +5,12 @@ from sqlite3 import Error
 class Database:
 
     def __init__(self):
+        setup()
         self.conn = self.create_connection()
         
 
     def insert_run(self, *vals):
-        """ INSERT run (customer_id, begin__date, status_id) ..."""
+        """ INSERT run (customer_id, search_terms, category, begin_date, status_id) ..."""
         
         insert_run_sql = f"INSERT INTO run (customer_id, search_terms, category, begin_date, status_id) VALUES {vals};"
         print("run...", insert_run_sql)
@@ -18,9 +19,9 @@ class Database:
     
 
     def insert_data(self, *vals):
-        """INSERT web_scraping (run_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount) ..."""
+        """INSERT web_scraping (run_id, product_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount) ..."""
 
-        insert_data_sql = f"INSERT INTO web_scraping (run_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount) VALUES {vals};"
+        insert_data_sql = f"INSERT INTO web_scraping (run_id, product_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount) VALUES {vals};"
         print("web_scraping...", vals)
         self.exec(self.conn, insert_data_sql)
         return self.get_last_insert_rowid(self.conn)
@@ -49,8 +50,11 @@ class Database:
         print("Result:", result)
         return result
 
+    def close(self):
+        self.conn.commit()
 
-def main():
+
+def setup():
     
 
 
@@ -74,6 +78,7 @@ def main():
     sql_create_web_scraping_table = """ CREATE TABLE IF NOT EXISTS web_scraping (
                                         id integer PRIMARY KEY AUTOINCREMENT,
                                         run_id text NOT NULL references run (id),
+                                        product_id integer NULL,
                                         product_code text NULL,
                                         product_name text NULL,
                                         lead_date text NULL,
@@ -84,7 +89,7 @@ def main():
                                     ); """
     
     sql_alter_web_scraping_table = """ ALTER TABLE web_scraping
-                                        ADD COLUMN product_name text AFTER product_code;
+                                        ADD COLUMN product_id integer AFTER run_id;
                                     """
 
     # create a database connection
@@ -110,4 +115,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    print("Setting up Database...")
+    
+    setup()
+    
+    print("Database setup complete.")
