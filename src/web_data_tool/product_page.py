@@ -56,8 +56,6 @@ class ProductPage(Base):
                     if elem is not None:
                         elem.click()
             
-            self.wait(s=20)
-
             """ Find on page"""
             
             pc_elem = self.find_element_with_explicit_wait(By.CSS_SELECTOR, '.lbKeLk')
