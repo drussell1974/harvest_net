@@ -9,7 +9,7 @@ class CsvFile:
 
     def insert_run(self, *vals):
         """ DO NOTHING """
-        pass
+        return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     
 
     def insert_data(self, *vals):

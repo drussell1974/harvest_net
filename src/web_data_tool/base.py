@@ -1,5 +1,4 @@
 import time
-from datetime import datetime
 from unittest import TestCase
 
 from selenium import webdriver
@@ -35,10 +34,10 @@ class Base(TestCase):
 
     url = None
 
-    def __init__(self, url):                                                                
+    def __init__(self, url, datasource=None, **kwargs):                                                                
         super().__init__()
 
-        self.db = Database()
+        self.db = datasource if datasource is not None else Database()
         
         self.url = url if url is not None and url != "" else self.TEST_URL                                                                    
 
@@ -108,5 +107,6 @@ class Base(TestCase):
     def close(self):
         self.test_context.quit()
         self.test_context = None
-
-        self.db.conn.commit()
+        
+        if self.db is not None and self.db.conn is not str:
+            self.db.conn.commit()

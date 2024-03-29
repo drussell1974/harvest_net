@@ -17,8 +17,8 @@ class ArgosProductPage(Base):
 
     TEST_URL = "http://www.google.com"
     
-    def __init__(self, customer_id, product_codes, category="ad-hoc", base_url=None):  
-        super().__init__(base_url)
+    def __init__(self, customer_id, product_codes, category="ad-hoc", datasource=None, base_url=None):  
+        super().__init__(datasource, base_url)
         
         # run
         self.customer_id = customer_id
@@ -63,8 +63,8 @@ class GetProductCodes(Base):
 
     TEST_URL = "http://www.google.com"
     
-    def __init__(self, customer_id, search_terms, category="ad-hoc", url=None):  
-        super().__init__(url)   
+    def __init__(self, customer_id, search_terms, category="ad-hoc", datasource=None, url=None):  
+        super().__init__(url, datasource)   
         
         # run
         self.customer_id = customer_id

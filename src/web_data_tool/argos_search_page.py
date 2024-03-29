@@ -17,8 +17,8 @@ class ArgosSearchPage(Base):
 
     TEST_URL = "http://www.google.com"
     
-    def __init__(self, customer_id, search_terms, category, postcode=None, url=None):  
-        super().__init__(url)   
+    def __init__(self, customer_id, search_terms, category, postcode=None, datasource=None, url=None):  
+        super().__init__(datasource, url)
         
         # run
         self.customer_id = customer_id
