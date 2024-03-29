@@ -17,8 +17,10 @@ class SearchPage(Base):
 
     TEST_URL = "http://www.google.com"
     
-    def __init__(self, customer_id, search_terms, category, postcode=None, url=None, datasource=None, DEBUG=False):  
+    def __init__(self, customer_id, search_terms, category, postcode=None, url=None, datasource=None, batch_size=300, DEBUG=False):  
         super().__init__(url, datasource, DEBUG=DEBUG)
+        
+        self.batch_size = batch_size
         
         # run
         self.customer_id = customer_id
@@ -60,6 +62,7 @@ class SearchPage(Base):
         while next_page is True:
             for elem in elems:
                 order_of_result = order_of_result + 1
+                
                 try:
                     """ Find on index """
 
@@ -96,6 +99,10 @@ class SearchPage(Base):
                     #run_id, order_of_result, product_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount
                     self.db.insert_data(self.run_id, order_of_result, id_text, 'UNKNOWN', pn_text, lead_date, lead_days, av_text, pr_text, di_text)
 
+                    if order_of_result > self.batch_size:
+                        next_page = False
+                        break
+                    
                 except Exception as e:
                     if self.DEBUG:
                         print(e)
@@ -105,9 +112,15 @@ class SearchPage(Base):
                     
             #self.db.conn.commit()
             
-            # pagination - go to next page
-            elem = self.find_element_with_implicit_wait(By.CSS_SELECTOR, 'a.Paginationstyles__PageLink-sc-1temk9l-1')
             try:
+                # pagination - go to next page
+                elem = self.find_element_with_implicit_wait(By.CSS_SELECTOR, 'a.Paginationstyles__PageLink-sc-1temk9l-1')
+                if elem is None:
+                    next_page = False
+                    break
+                else: 
+                    next_page = True
+
                 print("opening next page....")
                 elem.click()
             except StaleElementReferenceException  as e:
@@ -117,10 +130,6 @@ class SearchPage(Base):
                 elem = None    
                 next_page = False
             
-            if elem is None or order_of_result > 300:
-                next_page = False
-            else: 
-                next_page = True
         pass
 
 

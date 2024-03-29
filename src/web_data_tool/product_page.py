@@ -86,8 +86,10 @@ class ProductPage(Base):
 class GetProductCodes(Base):
     """ Task class for the demo run """
     
-    def __init__(self, customer_id, search_terms, category="ad-hoc", datasource=None, url=None, DEBUG=False):  
+    def __init__(self, customer_id, search_terms, category="ad-hoc", datasource=None, url=None, batch_size=300, DEBUG=False):  
         super().__init__(url, datasource, DEBUG=DEBUG)   
+        
+        self.batch_size = batch_size
         
         # run
         self.customer_id = customer_id
@@ -133,16 +135,16 @@ class GetProductCodes(Base):
                 n = n + 1
                 try:
                     # product id from url - .../product/2650049?clickPR=plp:1:131
-                    pc = self.find_element_with_implicit_wait(By.CSS_SELECTOR, element_id='.cnmosm:first-child', parent=elem)
-                    pc = pc.get_attribute("href") if pc is not None else 'NF'
-                    if pc != 'NF':
-                        pc = pc.split("?")[0] if len(pc.split("?")) > 0 else 'NF'
-                        pc = pc.split('/')[len(pc.split("/"))-1] if pc != 'NF' and len(pc.split('/')) > 0 else 'NF'
-                        print(pc)
+                    id_elem = self.find_element_with_implicit_wait(By.CSS_SELECTOR, element_id='.cnmosm:first-child', parent=elem)
+                    id_text = id_elem.get_attribute("href") if id_elem is not None else 'NF'
+                    if id_text != 'NF':
+                        id_text = id_text.split("?")[0] if len(id_text.split("?")) > 0 else 'NF'
+                        id_text = id_text.split('/')[len(id_text.split("/"))-1] if id_text != 'NF' and len(id_text.split('/')) > 0 else 'NF'
+                        print(id_text)
                     else: 'NF'
                     
-                    if pc != 'NF':
-                        self.product_codes.append(pc)
+                    if id_text != 'NF':
+                        self.product_codes.append(id_text)
                 except Exception as e:
                     # just report and continue
                     print("Product code not found - ", e)
@@ -156,22 +158,23 @@ class GetProductCodes(Base):
         
             # commit current results
             
-            # pagination - go to next page
-            elem = self.find_element_with_implicit_wait(By.CSS_SELECTOR, 'a.Paginationstyles__PageLink-sc-1temk9l-1')
             try:
+                # pagination - go to next page
+                elem = self.find_element_with_implicit_wait(By.CSS_SELECTOR, 'a.Paginationstyles__PageLink-sc-1temk9l-1')
+            
                 print("opening next page....")
                 elem.click()
+                
+                if elem is None or n > self.batch_size:
+                    next_page = False
+                else: 
+                    next_page = True
             except StaleElementReferenceException  as e:
                 elem = self.find_element_with_implicit_wait(By.CSS_SELECTOR, 'a.Paginationstyles__PageLink-sc-1temk9l-1')
                 elem.click()  
             except Exception as e:
                 elem = None    
                 next_page = False
-            
-            if elem is None or n > 300:
-                next_page = False
-            else: 
-                next_page = True
         
         return self.product_codes
     
