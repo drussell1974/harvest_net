@@ -3,7 +3,8 @@ import traceback
 from selenium.common.exceptions import NoSuchElementException
 
 from database import main as db_main
-from task import Demo1, Demo2
+from web_data_tool.demo1 import Demo1
+from web_data_tool.demo2 import Demo2
 
 def setup():
     db_main()
