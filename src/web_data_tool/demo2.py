@@ -36,8 +36,8 @@ class Demo2(Base):
         
         self.do_get(self.url)
         
-        # accept cookies
-        elem = self.find_element_with_explicit_wait(By.CSS_SELECTOR, "explicit-consent-prompt-accept")
+        # accept cookies - if present
+        elem = self.find_element_with_explicit_wait(By.CSS_SELECTOR, "#explicit-consent-prompt-accept")
         if elem is not None:
             elem.click()
         
@@ -47,8 +47,18 @@ class Demo2(Base):
         
         for elem in elems:
             try:
-                """ Find on page"""
-                pn = self.find_element_with_implicit_wait(By.CSS_SELECTOR, '.PQnCV', parent=elem)
+                """ Find on index """
+
+                # product id from url - .../product/2650049?clickPR=plp:1:131
+                pc = self.find_element_with_implicit_wait(By.CSS_SELECTOR, element_id='.cnmosm:first-child', parent=elem)
+                pc = pc.get_attribute("href") if pc is not None else 'NF'
+                if pc != 'NF':
+                    pc = pc.split("?")[0] if len(pc.split("?")) > 0 else 'NF'
+                    pc = pc.split('/')[len(pc.split("/"))-1] if pc != 'NF' and len(pc.split('/')) > 0 else 'NF'
+                    print(pc)
+                else: 'NF'
+
+                pn = self.find_element_with_implicit_wait(By.CSS_SELECTOR, element_id='.PQnCV', parent=elem)
                 pn = pn.text if pn is not None else 'NF'
 
                 pr = self.find_element_with_implicit_wait(by=By.CSS_SELECTOR, element_id='.ProductCardstyles__PriceText-h52kot-16', parent=elem)
@@ -57,7 +67,7 @@ class Demo2(Base):
                 di = self.find_element_with_implicit_wait(by=By.CSS_SELECTOR, element_id='.uhWEw', parent=elem)
                 di = di.text if di is not None else 'NF'
 
-                self.db.insert_data(self.run_id, '', pn, datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), 0, 0, pr, di)
+                self.db.insert_data(self.run_id, pc, pn, datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), 0, 0, pr, di)
             except Exception as e:
                 print(e)
             
@@ -65,4 +75,3 @@ class Demo2(Base):
 
     def close(self):
         super().close()
-    

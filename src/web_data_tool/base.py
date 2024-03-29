@@ -86,10 +86,11 @@ class Base(TestCase):
         return elem
 
 
-    def find_element_with_explicit_wait(self, by, element_id, wait=2):
+    def find_element_with_explicit_wait(self, by, element_id, wait=2, parent=None):
         elem = None
         try:
-            elem = WebDriverWait(self.test_context, wait).until(
+            elem = self.test_context if parent == None else parent
+            elem = WebDriverWait(elem, wait).until(
                 EC.presence_of_element_located((by, element_id))
             )
         except TimeoutException:
