@@ -19,9 +19,9 @@ class Database:
     
 
     def insert_data(self, *vals):
-        """INSERT web_scraping (run_id, product_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount) ..."""
-
-        insert_data_sql = f"INSERT INTO web_scraping (run_id, product_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount) VALUES {vals};"
+        """INSERT web_scraping (run_id, order_of_result, product_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount) ..."""
+        
+        insert_data_sql = f"INSERT INTO web_scraping (run_id, order_of_result, product_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount) VALUES {vals};"
         print("web_scraping...", vals)
         self.exec(self.conn, insert_data_sql)
         return self.get_last_insert_rowid(self.conn)
@@ -78,6 +78,7 @@ def setup():
     sql_create_web_scraping_table = """ CREATE TABLE IF NOT EXISTS web_scraping (
                                         id integer PRIMARY KEY AUTOINCREMENT,
                                         run_id text NOT NULL references run (id),
+                                        order_of_result integer NOT NULL,
                                         product_id integer NULL,
                                         product_code text NULL,
                                         product_name text NULL,

@@ -1,5 +1,7 @@
 import time
 from unittest import TestCase
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+from selenium.webdriver.firefox.service import Service
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
@@ -19,24 +21,36 @@ def WebBrowserContext():
     #return webdriver.Chrome()
     
     ''' Uncomment for Firefox -- geckodriver.exe '''
-    #fireFoxOptions = webdriver.FirefoxOptions()
-    #fireFoxOptions.add_argument("--headless")
-    #fireFoxOptions.set_headless()
-    #browser = webdriver.Firefox(options=fireFoxOptions)
+
+    service = Service(service_args=['--profile-root', './firefox_profile'])
     
-    #return browser
+    firefox_profile = FirefoxProfile()
+    
+    """firefox_profile.set_preference("javascript.enabled", True)
+    firefox_profile.set_preference("network.cookie.cookieBehavior", 0)
+    firefox_profile.set_preference("network.cookie.lifetimePolicy", 2)
+    firefox_profile.set_preference("network.cookie.thirdparty.sessionOnly", False)
+    firefox_profile.set_preference("network.cookie.thirdparty.nonsecureSessionOnly", True)"""
+    
+    firefox_profile.set_preference("pref.privacy.disable_button.tracking_protection_exceptions", True)
+    firefox_profile.set_preference("privacy.trackingprotection.enabled", False)
+    
+    fireFoxOptions = webdriver.FirefoxOptions()
+    fireFoxOptions.profile = firefox_profile
 
-    driver = webdriver.Firefox()
-    return driver
-
+    browser = webdriver.Firefox(options=fireFoxOptions, service=service)
+    return browser
+    
 
 class Base(TestCase):
 
     url = None
 
-    def __init__(self, url, datasource=None, **kwargs):                                                                
+    def __init__(self, url, datasource=None, DEBUG=False, **kwargs):                                                                
         super().__init__()
-
+        
+        self.DEBUG = DEBUG
+        
         self.db = datasource if datasource is not None else Database()
         
         self.url = url if url is not None and url != "" else self.TEST_URL                                                                    

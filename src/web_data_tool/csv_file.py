@@ -6,7 +6,7 @@ class CsvFile:
     def __init__(self):
         self._run_id = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
         self.conn = self.create_connection(self._run_id)
-        self.insert_run("run_id", "product_code", "product_name", "lead_date", "lead_days", "in_stock", "price", "discount")
+        self.insert_run("id", "run_id", "order_of_result", "product_id", "product_code", "product_name", "lead_date", "lead_days", "in_stock", "price", "discount")
         
 
     def insert_run(self, *vals):
@@ -16,7 +16,7 @@ class CsvFile:
     
 
     def insert_data(self, *vals):
-        """ run_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount """
+        """ run_id, order_of_result, product_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount """
         print("web_scraping...", vals)
         self.exec(self.conn, vals)
         

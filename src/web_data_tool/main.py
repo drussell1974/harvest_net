@@ -19,7 +19,7 @@ if __name__ == '__main__':
         src = CsvFile()
         print(""" ProductPage website get single product - write to """, src)        
         
-        task1 = ProductPage(1, product_codes=["1403149"], base_url="https://www.argos.co.uk/product", datasource=src)
+        task1 = ProductPage(1, product_codes=["1403149"], base_url="https://www.argos.co.uk/product", datasource=src, DEBUG=True)
         print('Running task...')
         task1.run()
         
@@ -32,7 +32,7 @@ if __name__ == '__main__':
         src = Database()
         print(" ProductPage - get single product - write to ", src)
 
-        task1 = ProductPage(1, product_codes=["1403149"], base_url="https://www.argos.co.uk/product", datasource=src)
+        task1 = ProductPage(1, product_codes=["1403149"], postcode="HD4 6XX", base_url="https://www.argos.co.uk/product", datasource=src, DEBUG=True)
         
         print('Running task...')
         task1.run()
@@ -46,7 +46,7 @@ if __name__ == '__main__':
         src = Database()
         print(" ProductPage - get all product codes for Mattress - write to ", src)
 
-        task1 = GetProductCodes(1, search_terms="Matress", url="https://www.argos.co.uk/", datasource=src)
+        task1 = GetProductCodes(1, search_terms="Matress", url="https://www.argos.co.uk/", datasource=src, DEBUG=True)
         
         print('Running task1 to get product code...')
         task1.run()
@@ -54,7 +54,7 @@ if __name__ == '__main__':
         # share src with task2
         task1.close(page_only=True)
 
-        task2 = ProductPage(1, product_codes=task1.product_codes, base_url="https://www.argos.co.uk/product", datasource=src)
+        task2 = ProductPage(1, product_codes=task1.product_codes, base_url="https://www.argos.co.uk/product", datasource=src, DEBUG=True)
         print('Running task...')
         task2.run()
         
@@ -70,7 +70,7 @@ if __name__ == '__main__':
         matress_sizes = ["single"] #, "small-double", "double", "king-size"]
         
         for size in matress_sizes:
-            task = SearchPage(1, search_terms="Matress", category=size, url=f"https://www.argos.co.uk/browse/home-and-furniture/bedroom-furniture/mattresses/c:29870/size:{size}", datasource=src)
+            task = SearchPage(1, search_terms="Matress", category=size, url=f"https://www.argos.co.uk/browse/home-and-furniture/bedroom-furniture/mattresses/c:29870/size:{size}", datasource=src, DEBUG=True)
             
             print('Running task...')
             task.run()
@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
         # Single mattresses page 3
 
-        task = SearchPage(1, search_terms="Matress", category="single", postcode="HD4 6XX", url=f"https://www.argos.co.uk/browse/home-and-furniture/bedroom-furniture/mattresses/c:29870/size:single/opt/page:3/", datasource=src)
+        task = SearchPage(1, search_terms="Matress", category="single", postcode="HD4 6XX", url=f"https://www.argos.co.uk/browse/home-and-furniture/bedroom-furniture/mattresses/c:29870/size:single/opt/page:3/", datasource=src, DEBUG=True)
         
         print('Running task...')
         task.run()

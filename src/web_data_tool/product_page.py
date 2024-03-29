@@ -15,12 +15,13 @@ from base import Base, WebBrowserContext
 class ProductPage(Base):
     """ Task class for the demo run """
     
-    def __init__(self, customer_id, product_codes, category="ad-hoc", base_url=None, datasource=None):  
-        super().__init__(base_url, datasource)
+    def __init__(self, customer_id, product_codes, category="ad-hoc", postcode=None, base_url=None, datasource=None, DEBUG=False):  
+        super().__init__(base_url, datasource, DEBUG=DEBUG)
         
         # run
         self.customer_id = customer_id
         self.product_codes = product_codes
+        self.postcode = postcode
         self.category = category
         self.run_id = 0
         self.begin_date = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
@@ -32,22 +33,37 @@ class ProductPage(Base):
 
         self.run_id = self.db.insert_run(self.customer_id, str(self.product_codes), self.category, self.begin_date, 1)
         print("creating run....", self.run_id)
+        
+        order_of_result = 0
 
-        for product_code in self.product_codes:
+        for product_id in self.product_codes:
+            
+            order_of_result = order_of_result + 1
 
-            self.do_get_page(f"{self.url}/{product_code}")
+            self.do_get_page(f"{self.url}/{product_id}")
                 
             # accept cookies
             elem = self.find_element_with_explicit_wait(By.ID, "explicit-consent-prompt-accept")
             if elem is not None:
                 elem.click()
             
+            # enter postcode
+            if self.postcode is not None:
+                elem = self.find_element_with_explicit_wait(By.ID, "search")
+                if elem is not None:
+                    elem.send_keys(self.postcode)
+                    self.find_element_with_implicit_wait(By.CSS_SELECTOR, '.button.izsPEe:nth-child(2)')
+                    if elem is not None:
+                        elem.click()
+            
+            self.wait(s=20)
+
             """ Find on page"""
             
-            pc_elem = self.find_element_with_explicit_wait(By.CSS_SELECTOR, '.Namestyles__Main-sc-269llv-1 > span:nth-child(1)')
+            pc_elem = self.find_element_with_explicit_wait(By.CSS_SELECTOR, '.lbKeLk')
             pc_text = pc_elem.text if pc_elem is not None else 'NF'
 
-            pn_elem = self.find_element_with_explicit_wait(By.CSS_SELECTOR, '.Namestyles__CatNumber-sc-269llv-2')
+            pn_elem = self.find_element_with_explicit_wait(By.CSS_SELECTOR, '.Namestyles__Main-sc-269llv-1 > span:nth-child(1)')
             pn_text = pn_elem.text if pn_elem is not None else 'NF'
 
             pr_elem = self.find_element_with_implicit_wait(by=By.CSS_SELECTOR, element_id='.Pricestyles__OfferPriceTitle-sc-1oev7i-4')
@@ -55,8 +71,12 @@ class ProductPage(Base):
 
             di_elem = self.find_element_with_implicit_wait(by=By.CSS_SELECTOR, element_id='.Pricestyles__PriceWas-sc-1oev7i-3')
             di_text = di_elem.text if di_elem is not None else 'NF'
-            # run_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount
-            self.db.insert_data(self.run_id, product_code, pc_text, pn_text, datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), 0, 0, pr_text, di_text)
+            
+            av_elem = self.find_element_with_implicit_wait(by=By.CSS_SELECTOR, element_id='.AvailabilityMessagestyles__Container-sc-1rhbnl2-0 > span:nth-child(1)')
+            av_text = av_elem.text if av_elem is not None else 'NF'
+
+            # run_id, order_of_result, product_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount
+            self.db.insert_data(self.run_id, order_of_result, product_id, pc_text, pn_text, datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), 'UNKNOWN', av_text, pr_text, di_text)
             
             self.close(page_only=True)
     
@@ -68,8 +88,8 @@ class ProductPage(Base):
 class GetProductCodes(Base):
     """ Task class for the demo run """
     
-    def __init__(self, customer_id, search_terms, category="ad-hoc", datasource=None, url=None):  
-        super().__init__(url, datasource)   
+    def __init__(self, customer_id, search_terms, category="ad-hoc", datasource=None, url=None, DEBUG=False):  
+        super().__init__(url, datasource, DEBUG=DEBUG)   
         
         # run
         self.customer_id = customer_id

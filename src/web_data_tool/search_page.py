@@ -17,8 +17,8 @@ class SearchPage(Base):
 
     TEST_URL = "http://www.google.com"
     
-    def __init__(self, customer_id, search_terms, category, postcode=None, url=None, datasource=None):  
-        super().__init__(url, datasource)
+    def __init__(self, customer_id, search_terms, category, postcode=None, url=None, datasource=None, DEBUG=False):  
+        super().__init__(url, datasource, DEBUG=DEBUG)
         
         # run
         self.customer_id = customer_id
@@ -56,24 +56,24 @@ class SearchPage(Base):
         elems = self.find_elements_with_implicit_wait(by=By.CSS_SELECTOR, element_id=".jsHfZV", wait=10)
 
         next_page = True
-        n = 0
+        order_of_result = 0
         while next_page is True:
             for elem in elems:
-                n = n + 1
+                order_of_result = order_of_result + 1
                 try:
                     """ Find on index """
 
                     # product id from url - .../product/2650049?clickPR=plp:1:131
-                    pc_elem = self.find_element_with_implicit_wait(By.CSS_SELECTOR, element_id='.cnmosm:first-child', parent=elem)
-                    pc_text = pc_elem.get_attribute("href") if pc_elem is not None else 'NF'
+                    id_elem = self.find_element_with_implicit_wait(By.CSS_SELECTOR, element_id='.cnmosm:first-child', parent=elem)
+                    id_text = id_elem.get_attribute("href") if id_elem is not None else 'NF'
                     
                     av_text = 'INIT'
-                    if pc_text != 'NF':
-                        pc_text = pc_text.split("?")[0] if len(pc_text.split("?")) > 0 else 'NF'
-                        pc_text = pc_text.split('/')[len(pc_text.split("/"))-1] if pc_text != 'NF' and len(pc_text.split('/')) > 0 else 'NF'
+                    if id_text != 'NF':
+                        id_text = id_text.split("?")[0] if len(id_text.split("?")) > 0 else 'NF'
+                        id_text = id_text.split('/')[len(id_text.split("/"))-1] if id_text != 'NF' and len(id_text.split('/')) > 0 else 'NF'
 
                         # > .cnmosm div.ProductCardstyles__AvailabilityLabelContainer-h52kot-22.hMTBBA div.ProductCardstyles__AvailabilityLabelWrapper-h52kot-24.lgWlfG span.ProductCardstyles__AvailabilityLabel-h52kot-25.xrvSx
-                        av_elem = self.find_element_with_implicit_wait(by=By.CSS_SELECTOR, element_id='div.hMTBBA div.lgWlfG span.xrvSx', parent=pc_elem)    
+                        av_elem = self.find_element_with_implicit_wait(by=By.CSS_SELECTOR, element_id='div.hMTBBA div.lgWlfG span.xrvSx', parent=id_elem)
                         av_text = av_elem.text if av_elem is not None else 'NF'
                         if av_text != 'NF':
                             print(av_text)
@@ -88,10 +88,17 @@ class SearchPage(Base):
                     di_elem = self.find_element_with_implicit_wait(by=By.CSS_SELECTOR, element_id='.uhWEw', parent=elem)
                     di_text = di_elem.text if di_elem is not None else 'NF'
 
-                    self.db.insert_data(self.run_id, 0, pc_text, pn_text, datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), 0, av_text, pr_text, di_text)
+                    # run_id, product_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount
+                    lead_days = ''
+                    [lead_days + i for i in av_text.split() if i.isdigit()]
+                    lead_date = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+                    
+                    #run_id, order_of_result, product_id, product_code, product_name, lead_date, lead_days, in_stock, price, discount
+                    self.db.insert_data(self.run_id, order_of_result, id_text, 'UNKNOWN', pn_text, lead_date, lead_days, av_text, pr_text, di_text)
 
                 except Exception as e:
-                    print(e)
+                    if self.DEBUG:
+                        print(e)
             
 
             # commit current results
@@ -110,7 +117,7 @@ class SearchPage(Base):
                 elem = None    
                 next_page = False
             
-            if elem is None or n > 300:
+            if elem is None or order_of_result > 300:
                 next_page = False
             else: 
                 next_page = True

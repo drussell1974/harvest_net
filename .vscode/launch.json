@@ -18,7 +18,7 @@
             "program": "src/web_data_tool/main.py",
             "args": ["demo1a"],
             "console": "integratedTerminal"
-        },,
+        },
         {
             "name": "Debug Demo1b",
             "type": "debugpy",
@@ -26,13 +26,29 @@
             "program": "src/web_data_tool/main.py",
             "args": ["demo1b"],
             "console": "integratedTerminal"
-        }
+        },
         {
             "name": "Debug Demo1c",
             "type": "debugpy",
             "request": "launch",
             "program": "src/web_data_tool/main.py",
             "args": ["demo1c"],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug Demo1c",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/web_data_tool/main.py",
+            "args": ["demo2"],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug Demo1c",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/web_data_tool/main.py",
+            "args": ["demo3"],
             "console": "integratedTerminal"
         }
     ]
