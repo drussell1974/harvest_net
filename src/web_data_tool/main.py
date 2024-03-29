@@ -4,8 +4,8 @@ from selenium.common.exceptions import NoSuchElementException
 
 from database import Database
 from csv_file import CsvFile
-from web_data_tool.product_page import ProductPage, GetProductCodes
-from web_data_tool.search_page import SearchPage
+from product_page import ProductPage, GetProductCodes
+from search_page import SearchPage
 
 
 if __name__ == '__main__':
