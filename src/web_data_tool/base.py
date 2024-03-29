@@ -54,7 +54,7 @@ class Base(TestCase):
         time.sleep(s)
 
 
-    def do_get(self, uri, wait=0):
+    def do_get_page(self, uri, wait=0):
         """ open the web page"""
         self.test_context.get(uri)
         self.test_context.implicitly_wait(wait)
